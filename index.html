@@ -6,20 +6,22 @@
 <title>Story Map · Tutor Inteligente ITM</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root{--ink:#1f2433;--muted:#616a7d;--line:#d3d9e4;--paper:#f7f8fb;--card:#fff;
-    --e2:#0d8f8a;--e2t:#e2f4f2;--e3:#8a4fd6;--e3t:#f0e9fb;--e4:#2f9e57;--e4t:#e5f5ea;--accent:#4a41ab;--gold:#e0a300;}
+  :root{--ink:#1f2433;--muted:#616a7d;--line:#d3d9e4;--paper:#f5f6f9;--card:#fff;
+    --e1:#4f46b8;--e1t:#eceafb;--e1b:#cbc5f0;--e2:#0d8f8a;--e2t:#e2f4f2;--e2b:#b3ded9;
+    --e3:#8a4fd6;--e3t:#f0e9fb;--e3b:#d8c6f2;--e4:#2f9e57;--e4t:#e5f5ea;--e4b:#bfe3cb;
+    --accent:#4a41ab;--gold:#e0a300;}
   *{box-sizing:border-box;}
   html,body{margin:0;background:var(--paper);color:var(--ink);font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;}
-  .wrap{max-width:1500px;margin:0 auto;padding:26px 26px 60px;}
-  .nav{display:flex;gap:8px;margin-bottom:16px;font-family:"Sora";font-size:.8rem;}
-  .nav a{text-decoration:none;border:1px solid var(--line);border-radius:9px;padding:7px 12px;color:var(--muted);background:#fff;}
-  .nav a.cur{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .wrap{max-width:1620px;margin:0 auto;padding:28px 26px 60px;}
   .kicker{font-family:"Sora";font-weight:600;font-size:.8rem;color:var(--muted);margin:0 0 6px;}
   h1{font-family:"Sora";font-weight:700;font-size:1.6rem;line-height:1.12;margin:0 0 8px;}
-  .sub{font-size:.88rem;color:var(--muted);max-width:82ch;line-height:1.5;margin:0;}
-  .topline{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;justify-content:space-between;margin:16px 0 6px;}
+  .sub{font-size:.88rem;color:var(--muted);max-width:84ch;line-height:1.5;margin:0;}
+  .objective{margin:18px 0 6px;background:linear-gradient(180deg,#5b53c6,#4a41ab);color:#fff;border-radius:14px;padding:14px 20px;box-shadow:0 10px 24px rgba(74,65,171,.24);}
+  .objective .lbl{font-family:"Sora";font-weight:700;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;opacity:.82;}
+  .objective .txt{font-size:.95rem;line-height:1.45;margin-top:3px;}
+  .topline{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;justify-content:space-between;margin:14px 0 8px;}
   .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.78rem;color:var(--muted);align-items:center;}
   .legend span{display:inline-flex;align-items:center;gap:6px;}
   .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
@@ -29,39 +31,51 @@
   .btn:hover{border-color:var(--accent);color:var(--accent);}
   .banner{margin:12px 0 0;font-size:.78rem;padding:9px 12px;border-radius:8px;background:#fff5e6;border:1px solid #f0c987;color:#8a5a00;display:none;}
   .loading{color:var(--muted);font-size:.9rem;padding:40px 0;text-align:center;}
-  .scroll{overflow-x:auto;padding-bottom:12px;margin-top:8px;}
-  .map{display:grid;gap:0;min-width:900px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--line);}
-  .map>div{background:var(--paper);}
-  .corner{background:#eef0f5;font-family:"Sora";font-weight:600;font-size:.72rem;color:var(--muted);display:flex;align-items:center;justify-content:flex-end;padding:8px 10px;border-right:2px solid var(--line);}
-  .epic{color:#fff;font-family:"Sora";font-weight:700;font-size:.86rem;padding:9px 12px;border-bottom:2px solid rgba(255,255,255,.35);}
-  .epic .ecode{opacity:.85;font-weight:600;margin-right:2px;}
-  .epic.e2{background:var(--e2);} .epic.e3{background:var(--e3);} .epic.e4{background:var(--e4);}
-  .feat{font-family:"Sora";font-weight:600;font-size:.78rem;line-height:1.25;padding:8px 10px;color:var(--ink);border-right:1px solid var(--line);}
-  .feat .fcode{font-weight:700;margin-right:4px;color:var(--muted);}
-  .feat.e2{background:var(--e2t);} .feat.e3{background:var(--e3t);} .feat.e4{background:var(--e4t);}
-  .rowlbl{background:#eef0f5;font-family:"Sora";font-weight:600;font-size:.76rem;color:var(--ink);padding:10px 8px;border-right:2px solid var(--line);border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px;}
-  .rowlbl.head{background:#e4e7ef;}
-  .mvptag{align-self:flex-start;background:var(--gold);color:#3a2c00;font-family:"Sora";font-weight:700;font-size:.6rem;padding:1px 5px;border-radius:5px;}
-  .cell{border-top:1px solid var(--line);border-right:1px solid var(--line);padding:7px;display:flex;flex-direction:column;gap:7px;min-height:52px;}
-  .card{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--muted);border-radius:8px;padding:7px 9px;box-shadow:0 1px 2px rgba(31,36,51,.05);}
-  .card.e2{border-left-color:var(--e2);} .card.e3{border-left-color:var(--e3);} .card.e4{border-left-color:var(--e4);}
+  .scroll{overflow-x:auto;padding-bottom:12px;margin-top:6px;}
+  .map{display:grid;gap:10px;min-width:1040px;}
+
+  .glabel{display:flex;flex-direction:column;justify-content:flex-end;padding:4px 12px 8px 0;text-align:right;}
+  .glabel b{font-family:"Sora";font-weight:700;font-size:.84rem;color:var(--ink);}
+  .glabel small{font-family:"JetBrains Mono",monospace;font-size:.66rem;color:var(--muted);margin-top:2px;letter-spacing:.02em;}
+
+  .epic{border-radius:13px;padding:12px 15px;color:#fff;box-shadow:0 6px 16px rgba(31,36,51,.14);}
+  .epic .etitle{font-family:"Sora";font-weight:700;font-size:.92rem;line-height:1.22;}
+  .epic .esub{font-family:"JetBrains Mono",monospace;font-size:.68rem;opacity:.85;margin-top:4px;}
+  .epic.e1{background:var(--e1);} .epic.e2{background:var(--e2);} .epic.e3{background:var(--e3);} .epic.e4{background:var(--e4);}
+
+  .feat{border-radius:11px;padding:11px 13px;}
+  .feat .ftitle{font-family:"Sora";font-weight:600;font-size:.8rem;line-height:1.25;color:var(--ink);}
+  .feat .fsub{font-family:"JetBrains Mono",monospace;font-size:.66rem;color:var(--muted);margin-top:5px;}
+  .feat.e1{background:var(--e1t);border:1px solid var(--e1b);} .feat.e2{background:var(--e2t);border:1px solid var(--e2b);}
+  .feat.e3{background:var(--e3t);border:1px solid var(--e3b);} .feat.e4{background:var(--e4t);border:1px solid var(--e4b);}
+
+  .rowlbl{display:flex;flex-direction:column;justify-content:center;gap:3px;border-radius:11px;padding:10px 12px;background:#e9ecf3;border:1px solid var(--line);}
+  .rowlbl b{font-family:"Sora";font-weight:700;font-size:.8rem;}
+  .rowlbl small{font-family:"JetBrains Mono",monospace;font-size:.66rem;color:var(--muted);}
+  .rowlbl.r1{background:#fbf3dd;border-color:#eBcF8a;}
+  .rowlbl.r1 b{color:#7a5b00;}
+
+  .cell{border-radius:11px;border:1px solid #e5e8ef;background:#fbfcfe;padding:8px;display:flex;flex-direction:column;gap:8px;min-height:56px;}
+  .card{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--muted);border-radius:9px;padding:8px 10px;box-shadow:0 1px 2px rgba(31,36,51,.05);}
+  .card.e1{border-left-color:var(--e1);} .card.e2{border-left-color:var(--e2);} .card.e3{border-left-color:var(--e3);} .card.e4{border-left-color:var(--e4);}
   .card.ismvp{box-shadow:0 0 0 2px var(--gold) inset,0 1px 2px rgba(31,36,51,.05);}
   .chd{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:2px;}
   .ccode{font-family:"Sora";font-weight:700;font-size:.72rem;color:var(--muted);}
   .mvp{background:var(--gold);color:#3a2c00;font-family:"Sora";font-weight:700;font-size:.6rem;padding:1px 5px;border-radius:5px;}
   .ctitle{font-size:.79rem;line-height:1.28;font-weight:500;}
-  .cmeta{font-size:.68rem;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:5px;}
+  .cmeta{font-size:.68rem;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
   .foot{font-size:.76rem;color:var(--muted);line-height:1.5;margin-top:22px;border-top:1px solid var(--line);padding-top:14px;}
   .foot b{color:var(--ink);font-family:"Sora";}
-  @media print{@page{size:A3 landscape;margin:8mm;}.btn,.nav,.banner{display:none!important;}.scroll{overflow:visible;}
-    html,body{background:#fff;}.wrap{max-width:none;padding:0;}.map{min-width:0;}.card{box-shadow:none;}.card.ismvp{box-shadow:0 0 0 2px var(--gold) inset;}}
+  @media print{@page{size:A3 landscape;margin:8mm;}.btn,.banner{display:none!important;}.scroll{overflow:visible;}
+    html,body{background:#fff;}.wrap{max-width:none;padding:0;}.map{min-width:0;}.card,.epic{box-shadow:none;}.card.ismvp{box-shadow:0 0 0 2px var(--gold) inset;}.objective{box-shadow:none;}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <p class="kicker">ITM · Esp. Ingeniería de Software · Gestión de Proyectos</p>
   <h1>Story Map — Tutor Inteligente ITM (ITMentorSoft)</h1>
-  <p class="sub">Mapa de historias de usuario generado desde el backlog de Azure DevOps. La <b>columna vertebral</b> son los Temas y sus Épicas (recorrido del usuario); cada tarjeta es una <b>Historia de Usuario</b>; las <b>filas son los sprints</b>. Las historias <b>MVP</b> forman la primera entrega de extremo a extremo.</p>
+  <p class="sub">Arriba el <b>objetivo</b>; la <b>columna vertebral</b> son las Épicas (actividad macro) y debajo el flujo narrativo de features; cada tarjeta es una <b>Historia de Usuario</b>; las <b>filas son las Releases</b>.</p>
+  <div class="objective"><div class="lbl">Objetivo del usuario</div><div class="txt" id="obj"></div></div>
   <div class="topline">
     <div class="legend">
       <span class="mvpkey">MVP</span>
@@ -74,64 +88,44 @@
   </div>
   <div id="banner" class="banner"></div>
   <div id="content"><div class="loading">Cargando story map desde el backlog…</div></div>
-  <p class="foot"><b>Cómo actualizarlo:</b> exporta el backlog desde Azure DevOps (Boards → columnas ID, Title, Work Item Type, State, Effort, Iteration Path, Tags) y reemplaza <code>data/backlog.csv</code> en el repositorio. La jerarquía se arma por orden y tipo (Epic → Feature → Product Backlog Item → Task); el sprint sale de <i>Iteration Path</i> y el MVP de la etiqueta <i>Tags</i>.</p>
+  <p class="foot"><b>Cómo actualizarlo:</b> exporta el backlog desde Azure DevOps (columnas ID, Title, Work Item Type, State, Effort, Tags) y reemplaza <code>data/backlog.csv</code>. Jerarquía por orden y tipo (Epic → Feature → Product Backlog Item → Task). La <b>Release</b> sale de <i>Tags</i>: <b>MVP</b>→Release 1, <b>R2</b>→Release 2, <b>R3</b>→Release 3.</p>
 </div>
 <script>
-const FALLBACK={"epics": [{"code": "Tema 2", "title": "Evaluación y categorización de estudiantes", "features": [{"code": "2.1", "title": "Evaluación de conocimientos", "stories": [{"code": "2.1.1", "title": "Desarrollo de evaluación", "sprint": 4, "state": "New", "effort": 5, "mvp": true, "tasks": 4}, {"code": "2.1.2", "title": "Evaluación de un tema especifico", "sprint": 3, "state": "Approved", "effort": 5, "mvp": true, "tasks": 5}, {"code": "2.1.3", "title": "Creación de rubricas", "sprint": 3, "state": "Approved", "effort": 5, "mvp": true, "tasks": 3}]}, {"code": "2.2", "title": "Asignación de categorías", "stories": [{"code": "2.2.1", "title": "Asignación de categoría", "sprint": 4, "state": "New", "effort": 5, "mvp": true, "tasks": 6}, {"code": "2.2.2", "title": "Identificación de debilidades", "sprint": 4, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "2.2.3", "title": "Reportes por categoría", "sprint": 5, "state": "New", "effort": null, "mvp": false, "tasks": 4}]}]}, {"code": "Tema 3", "title": "Personalización de recursos por categoría", "features": [{"code": "3.1", "title": "Administración de recursos educativos", "stories": [{"code": "3.1.1", "title": "Registro de contenido acádemico", "sprint": 6, "state": "New", "effort": null, "mvp": false, "tasks": 4}, {"code": "3.1.2", "title": "Ruta de aprendizaje", "sprint": 6, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "3.1.3", "title": "Actualizar recursos acádemicos", "sprint": 6, "state": "New", "effort": null, "mvp": false, "tasks": 4}, {"code": "3.1.4", "title": "Reportes de contenido acádemico", "sprint": 6, "state": "New", "effort": null, "mvp": false, "tasks": 5}]}, {"code": "3.2", "title": "Gestión de rutas de aprendizaje", "stories": [{"code": "3.2.1", "title": "Actualizar rutas de aprendizaje", "sprint": 7, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "3.2.2", "title": "Reportes por estudiante", "sprint": 7, "state": "New", "effort": null, "mvp": false, "tasks": 4}, {"code": "3.2.3", "title": "Recepción de ruta de aprendizaje personalizada", "sprint": 6, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "3.2.4", "title": "Dar retrospectiva sobre contenido acádemico", "sprint": 7, "state": "New", "effort": null, "mvp": false, "tasks": 5}]}]}, {"code": "Tema 4", "title": "Seguimiento y retroalimentación", "features": [{"code": "4.1", "title": "Visualización de progreso", "stories": [{"code": "4.1.1", "title": "Progreso de aprendizaje", "sprint": 7, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "4.1.2", "title": "Metricas por estudiante", "sprint": 7, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "4.1.3", "title": "Progreso de estudiantes desde Docente", "sprint": 7, "state": "New", "effort": null, "mvp": false, "tasks": 4}]}, {"code": "4.2", "title": "Retroalimentación", "stories": [{"code": "4.2.1", "title": "Feedback por evaluación", "sprint": 8, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "4.2.2", "title": "Visualización de debilidades", "sprint": 8, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "4.2.3", "title": "Explicación de categorización", "sprint": 8, "state": "New", "effort": null, "mvp": false, "tasks": 4}]}]}]};
+const FALLBACK={"objetivo": "Diagnosticar y fortalecer los fundamentos de desarrollo de software del estudiante — desde su registro y acceso, hasta su evaluación, categorización, recursos personalizados y seguimiento.", "epics": [{"id": 2, "code": "Tema 1", "title": "Gestión de acceso y autorización de usuarios", "features": [{"id": 6, "code": "1.1", "title": "Gestión de autenticación e identidad de usuarios", "stories": [{"code": "1.1.1", "title": "Registro de usuarios", "release": "Release 1 / MVP", "state": "Done", "effort": 5, "mvp": true, "tasks": 4}, {"code": "1.1.2", "title": "Inicio de sesión", "release": "Release 1 / MVP", "state": "Done", "effort": 5, "mvp": true, "tasks": 5}, {"code": "1.1.3", "title": "Reestablecer contraseña", "release": "Release 1 / MVP", "state": "Done", "effort": 5, "mvp": true, "tasks": 8}]}, {"id": 7, "code": "1.2", "title": "Gestión de roles y accesos de usuarios", "stories": [{"code": "1.2.1", "title": "Asignación de roles", "release": "Release 1 / MVP", "state": "Done", "effort": 5, "mvp": true, "tasks": 3}, {"code": "1.2.2", "title": "Acceso y privacidad en datos", "release": "Release 1 / MVP", "state": "Done", "effort": 5, "mvp": true, "tasks": 4}, {"code": "1.2.3", "title": "Acceso a rubricas de calificación", "release": "Release 1 / MVP", "state": "Done", "effort": 5, "mvp": true, "tasks": 4}, {"code": "1.2.4", "title": "Reportes de estudiantes", "release": "Release 1 / MVP", "state": "Done", "effort": 5, "mvp": true, "tasks": 4}]}]}, {"id": 3, "code": "Tema 2", "title": "Evaluación y categorización de estudiantes", "features": [{"id": 9, "code": "2.1", "title": "Evaluación de conocimientos", "stories": [{"code": "2.1.1", "title": "Desarrollo de evaluación", "release": "Release 1 / MVP", "state": "New", "effort": 5, "mvp": true, "tasks": 4}, {"code": "2.1.2", "title": "Evaluación de un tema especifico", "release": "Release 1 / MVP", "state": "Approved", "effort": 5, "mvp": true, "tasks": 5}, {"code": "2.1.3", "title": "Creación de rubricas", "release": "Release 1 / MVP", "state": "Approved", "effort": 5, "mvp": true, "tasks": 3}]}, {"id": 10, "code": "2.2", "title": "Asignación de categorías", "stories": [{"code": "2.2.1", "title": "Asignación de categoría", "release": "Release 1 / MVP", "state": "New", "effort": 5, "mvp": true, "tasks": 6}, {"code": "2.2.2", "title": "Identificación de debilidades", "release": "Release 2", "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "2.2.3", "title": "Reportes por categoría", "release": "Release 2", "state": "New", "effort": null, "mvp": false, "tasks": 4}]}]}, {"id": 4, "code": "Tema 3", "title": "Personalización de recursos por categoría", "features": [{"id": 12, "code": "3.1", "title": "Administración de recursos educativos", "stories": [{"code": "3.1.1", "title": "Registro de contenido acádemico", "release": "Release 2", "state": "New", "effort": null, "mvp": false, "tasks": 4}, {"code": "3.1.2", "title": "Ruta de aprendizaje", "release": "Release 2", "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "3.1.3", "title": "Actualizar recursos acádemicos", "release": "Release 2", "state": "New", "effort": null, "mvp": false, "tasks": 4}, {"code": "3.1.4", "title": "Reportes de contenido acádemico", "release": "Release 2", "state": "New", "effort": null, "mvp": false, "tasks": 5}]}, {"id": 13, "code": "3.2", "title": "Gestión de rutas de aprendizaje", "stories": [{"code": "3.2.1", "title": "Actualizar rutas de aprendizaje", "release": "Release 3", "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "3.2.2", "title": "Reportes por estudiante", "release": "Release 3", "state": "New", "effort": null, "mvp": false, "tasks": 4}, {"code": "3.2.3", "title": "Recepción de ruta de aprendizaje personalizada", "release": "Release 2", "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "3.2.4", "title": "Dar retrospectiva sobre contenido acádemico", "release": "Release 3", "state": "New", "effort": null, "mvp": false, "tasks": 5}]}]}, {"id": 5, "code": "Tema 4", "title": "Seguimiento y retroalimentación", "features": [{"id": 15, "code": "4.1", "title": "Visualización de progreso", "stories": [{"code": "4.1.1", "title": "Progreso de aprendizaje", "release": "Release 3", "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "4.1.2", "title": "Metricas por estudiante", "release": "Release 3", "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "4.1.3", "title": "Progreso de estudiantes desde Docente", "release": "Release 3", "state": "New", "effort": null, "mvp": false, "tasks": 4}]}, {"id": 16, "code": "4.2", "title": "Retroalimentación", "stories": [{"code": "4.2.1", "title": "Feedback por evaluación", "release": "Release 3", "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "4.2.2", "title": "Visualización de debilidades", "release": "Release 3", "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "4.2.3", "title": "Explicación de categorización", "release": "Release 3", "state": "New", "effort": null, "mvp": false, "tasks": 4}]}]}]};
 const CSV_URL="data/backlog.csv";
-const CLS=['e2','e3','e4'];
+const CLS=['e1','e2','e3','e4'];
+const RANK={'Release 1 / MVP':1,'Release 2':2,'Release 3':3,'Posterior':4};
 function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
 function banner(m){const b=document.getElementById('banner');b.textContent=m;b.style.display='block';}
+function releaseOf(tags){const t=String(tags||'').toLowerCase();
+  if(t.includes('mvp'))return 'Release 1 / MVP';
+  if(/\br3\b|release 3/.test(t))return 'Release 3';
+  if(/\br2\b|release 2/.test(t))return 'Release 2';
+  return 'Posterior';}
 
 function modelFromAOA(aoa){
-  let hi=-1,cT=-1,cW=-1,cS=-1,cE=-1,cI=-1,cG=-1;
+  let hi=-1,cId=-1,cT=-1,cW=-1,cS=-1,cE=-1,cG=-1;
   for(let r=0;r<aoa.length;r++){
     const row=aoa[r].map(x=>String(x).trim().toLowerCase());
     const w=row.indexOf('work item type');
-    if(w>=0){hi=r;cW=w;cT=row.indexOf('title');cS=row.indexOf('state');cE=row.indexOf('effort');
-      cI=row.findIndex(x=>x.startsWith('iteration'));cG=row.indexOf('tags');break;}
+    if(w>=0){hi=r;cW=w;cId=row.indexOf('id');cT=row.indexOf('title');cS=row.indexOf('state');cE=row.indexOf('effort');cG=row.indexOf('tags');break;}
   }
-  if(hi<0||cT<0||cW<0) return null;
-  const model={epics:[]};let ce=null,cf=null,cp=null;
+  if(hi<0||cT<0||cW<0)return null;
+  const model={objetivo:FALLBACK.objetivo,epics:[]};let ce=null,cf=null,cp=null;
   for(let r=hi+1;r<aoa.length;r++){
     const g=(c)=>c>=0?String(aoa[r][c]||'').trim():'';
-    const type=g(cW), title=g(cT); if(!type||!title) continue;
+    const type=g(cW),title=g(cT);if(!type||!title)continue;
     if(/epic/i.test(type)){const m=title.match(/(Tema\s+\d+)\s*-\s*(.*)/i);
-      ce={code:m?m[1]:title,title:m?m[2]:title,features:[]};model.epics.push(ce);}
+      ce={id:g(cId),code:m?m[1]:title,title:m?m[2]:title,features:[]};model.epics.push(ce);}
     else if(/feature/i.test(type)){const m=title.match(/Épica\s+([\d.]+)\s*-\s*(.*)/i);
-      cf={code:m?m[1]:'',title:m?m[2]:title,stories:[]};if(ce)ce.features.push(cf);}
+      cf={id:g(cId),code:m?m[1]:'',title:m?m[2]:title,stories:[]};if(ce)ce.features.push(cf);}
     else if(/product backlog item|backlog item|user story|historia/i.test(type)){
-      const m=title.match(/HU\s+([\d.]+)\s+(.*)/i);
-      const it=g(cI),sm=it.match(/Sprint\s*(\d+)/i);
-      const eff=g(cE);
-      cp={code:m?m[1]:'',title:m?m[2]:title,sprint:sm?parseInt(sm[1]):0,
-          state:g(cS)||'New',effort:eff?eff:null,mvp:/mvp/i.test(g(cG)),tasks:0};
+      const m=title.match(/HU\s+([\d.]+)\s+(.*)/i);const eff=g(cE);const rel=releaseOf(g(cG));
+      cp={code:m?m[1]:'',title:m?m[2]:title,release:rel,state:g(cS)||'New',effort:eff?eff:null,mvp:(rel==='Release 1 / MVP'),tasks:0};
       if(cf)cf.stories.push(cp);}
-    else if(/task/i.test(type)){ if(cp)cp.tasks++; }
+    else if(/task/i.test(type)){if(cp)cp.tasks++;}
   }
   return model.epics.length?model:null;
-}
-
-function render(model){
-  const feats=[];let col=2;const bands=[];
-  model.epics.forEach((ep,ei)=>{const cls=CLS[ei%CLS.length];const start=col;
-    (ep.features||[]).forEach(f=>{feats.push({cls,f,col});col++;});bands.push({ep,cls,start,end:col-1});});
-  const nfeat=col-2; if(nfeat<=0){document.getElementById('content').innerHTML='<div class="loading">El backlog no tiene Épicas/Features reconocibles.</div>';return;}
-  const set=new Set();model.epics.forEach(ep=>(ep.features||[]).forEach(f=>(f.stories||[]).forEach(s=>set.add(s.sprint))));
-  const sprints=[...set].sort((a,b)=>a-b);
-  const cells=[];
-  cells.push('<div class="corner" style="grid-row:1;grid-column:1">Recorrido&nbsp;→</div>');
-  bands.forEach(b=>cells.push('<div class="epic '+b.cls+'" style="grid-row:1;grid-column:'+b.start+' / '+(b.end+1)+'"><span class="ecode">'+esc(b.ep.code)+'</span> · '+esc(b.ep.title)+'</div>'));
-  cells.push('<div class="rowlbl head" style="grid-row:2;grid-column:1">Épicas</div>');
-  feats.forEach(x=>cells.push('<div class="feat '+x.cls+'" style="grid-row:2;grid-column:'+x.col+'"><span class="fcode">'+esc(x.f.code)+'</span> '+esc(x.f.title)+'</div>'));
-  sprints.forEach((sp,si)=>{const gr=3+si;
-    const mvpHere=feats.some(x=>(x.f.stories||[]).some(s=>s.mvp&&s.sprint===sp));
-    cells.push('<div class="rowlbl" style="grid-row:'+gr+';grid-column:1">'+(sp?'Sprint '+sp:'Sin sprint')+(mvpHere?'<span class="mvptag">MVP</span>':'')+'</div>');
-    feats.forEach(x=>{const here=(x.f.stories||[]).filter(s=>s.sprint===sp);
-      cells.push('<div class="cell" style="grid-row:'+gr+';grid-column:'+x.col+'">'+here.map(s=>card(s,x.cls)).join('')+'</div>');});
-  });
-  const tmpl='104px repeat('+nfeat+',minmax(196px,1fr))';
-  document.getElementById('content').innerHTML='<div class="scroll"><div class="map" style="grid-template-columns:'+tmpl+'">'+cells.join('')+'</div></div>';
 }
 const DOT={'New':'dNew','Approved':'dApp','In Progress':'dProg','Done':'dDone'};
 function card(s,cls){
@@ -141,21 +135,43 @@ function card(s,cls){
   const dot=DOT[s.state]||'dNew';
   return '<div class="card '+cls+(s.mvp?' ismvp':'')+'"><div class="chd"><span class="ccode">HU '+esc(s.code)+'</span>'+badge+'</div><div class="ctitle">'+esc(s.title)+'</div><div class="cmeta"><span class="dot '+dot+'"></span>'+esc(s.state)+pts+tks+'</div></div>';
 }
+function render(model){
+  document.getElementById('obj').textContent=model.objetivo||'';
+  const feats=[];let col=2;const bands=[];
+  model.epics.forEach((ep,ei)=>{const cls=CLS[ei%CLS.length];const start=col;
+    (ep.features||[]).forEach(f=>{feats.push({cls,f,col});col++;});
+    const huCount=(ep.features||[]).reduce((a,f)=>a+(f.stories||[]).length,0);
+    bands.push({ep,cls,start,end:col-1,huCount});});
+  const nfeat=col-2;if(nfeat<=0){document.getElementById('content').innerHTML='<div class="loading">Sin Épicas reconocibles.</div>';return;}
+  const set=new Set();model.epics.forEach(ep=>(ep.features||[]).forEach(f=>(f.stories||[]).forEach(s=>set.add(s.release))));
+  const rels=[...set].sort((a,b)=>(RANK[a]||9)-(RANK[b]||9));
+  const cells=[];
+  cells.push('<div class="glabel" style="grid-row:1;grid-column:1"><b>Épica</b><small>actividad macro</small></div>');
+  bands.forEach(b=>cells.push('<div class="epic '+b.cls+'" style="grid-row:1;grid-column:'+b.start+' / '+(b.end+1)+'"><div class="etitle">'+esc(b.ep.title)+'</div><div class="esub">Épica #'+esc(b.ep.id)+' · '+b.huCount+' HU</div></div>'));
+  cells.push('<div class="glabel" style="grid-row:2;grid-column:1;justify-content:center"><b>Flujo narrativo</b><small>features</small></div>');
+  feats.forEach(x=>cells.push('<div class="feat '+x.cls+'" style="grid-row:2;grid-column:'+x.col+'"><div class="ftitle">'+esc(x.f.title)+'</div><div class="fsub">Feature #'+esc(x.f.id)+'</div></div>'));
+  rels.forEach((rel,ri)=>{const gr=3+ri;const isR1=(rel==='Release 1 / MVP');
+    const n=feats.reduce((a,x)=>a+(x.f.stories||[]).filter(s=>s.release===rel).length,0);
+    cells.push('<div class="rowlbl'+(isR1?' r1':'')+'" style="grid-row:'+gr+';grid-column:1"><b>'+esc(rel)+'</b><small>'+n+' HU</small></div>');
+    feats.forEach(x=>{const here=(x.f.stories||[]).filter(s=>s.release===rel);
+      cells.push('<div class="cell" style="grid-row:'+gr+';grid-column:'+x.col+'">'+here.map(s=>card(s,x.cls)).join('')+'</div>');});
+  });
+  const tmpl='158px repeat('+nfeat+',minmax(186px,1fr))';
+  document.getElementById('content').innerHTML='<div class="scroll"><div class="map" style="grid-template-columns:'+tmpl+'">'+cells.join('')+'</div></div>';
+}
 async function load(){
+  document.getElementById('obj').textContent=FALLBACK.objetivo||'';
   if(typeof XLSX==='undefined'){banner('No se pudo cargar la librería de lectura (sin conexión). Mostrando la versión incluida.');return render(FALLBACK);}
   try{
     const res=await fetch(CSV_URL+'?v='+Date.now(),{cache:'no-store'});
-    if(!res.ok) throw new Error('HTTP '+res.status);
+    if(!res.ok)throw new Error('HTTP '+res.status);
     const wb=XLSX.read(new Uint8Array(await res.arrayBuffer()),{type:'array'});
     const ws=wb.Sheets[wb.SheetNames[0]];
     const aoa=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:''});
     const m=modelFromAOA(aoa);
     if(!m){banner('El backlog no tiene el formato esperado; mostrando la versión incluida.');return render(FALLBACK);}
     render(m);
-  }catch(e){
-    banner('No se pudo leer el backlog del repositorio (¿abriste el archivo localmente?). Mostrando la versión incluida.');
-    render(FALLBACK);
-  }
+  }catch(e){banner('No se pudo leer el backlog del repositorio (¿abriste el archivo localmente?). Mostrando la versión incluida.');render(FALLBACK);}
 }
 load();
 </script>
