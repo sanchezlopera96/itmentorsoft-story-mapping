@@ -3,152 +3,159 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WBS / EDT · Tutor Inteligente ITM</title>
+<title>Story Map · Tutor Inteligente ITM</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--ink:#1f2433;--muted:#616a7d;--line:#c3cbda;--paper:#f7f8fb;--card:#fff;
-    --c1:#0d8f8a;--c1t:#e2f4f2;--c2:#8a4fd6;--c2t:#f0e9fb;--c3:#2f7bd6;--c3t:#e6f0fb;--c4:#2f9e57;--c4t:#e5f5ea;--accent:#4a41ab;}
+  :root{--ink:#1f2433;--muted:#616a7d;--line:#d3d9e4;--paper:#f7f8fb;--card:#fff;
+    --e2:#0d8f8a;--e2t:#e2f4f2;--e3:#8a4fd6;--e3t:#f0e9fb;--e4:#2f9e57;--e4t:#e5f5ea;--accent:#4a41ab;--gold:#e0a300;}
   *{box-sizing:border-box;}
   html,body{margin:0;background:var(--paper);color:var(--ink);font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;}
-  .wrap{max-width:1360px;margin:0 auto;padding:34px 30px 60px;}
+  .wrap{max-width:1500px;margin:0 auto;padding:26px 26px 60px;}
+  .nav{display:flex;gap:8px;margin-bottom:16px;font-family:"Sora";font-size:.8rem;}
+  .nav a{text-decoration:none;border:1px solid var(--line);border-radius:9px;padding:7px 12px;color:var(--muted);background:#fff;}
+  .nav a.cur{background:var(--accent);color:#fff;border-color:var(--accent);}
   .kicker{font-family:"Sora";font-weight:600;font-size:.8rem;color:var(--muted);margin:0 0 6px;}
-  h1{font-family:"Sora";font-weight:700;font-size:1.7rem;line-height:1.12;margin:0 0 8px;}
-  .sub{font-size:.9rem;color:var(--muted);max-width:78ch;line-height:1.5;margin:0;}
-  .topline{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:14px;}
-  .legend{display:flex;flex-wrap:wrap;gap:16px;font-size:.8rem;color:var(--muted);}
-  .legend span{display:inline-flex;align-items:center;gap:8px;}
-  .swatch{width:24px;height:13px;border-radius:4px;border:1px solid var(--line);}
-  .s0{background:linear-gradient(#eef0ff,#e3e6ff);border-color:#b9bffb;} .s1{background:#e9edf5;}
-  .s2{background:#fff;} .s3{background:#fff;border-style:dashed;}
+  h1{font-family:"Sora";font-weight:700;font-size:1.6rem;line-height:1.12;margin:0 0 8px;}
+  .sub{font-size:.88rem;color:var(--muted);max-width:82ch;line-height:1.5;margin:0;}
+  .topline{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;justify-content:space-between;margin:16px 0 6px;}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.78rem;color:var(--muted);align-items:center;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .dNew{background:#94a3b8;} .dApp{background:#2f7bd6;} .dProg{background:#e0902e;} .dDone{background:#2f9e57;}
+  .mvpkey{background:var(--gold);color:#3a2c00;font-family:"Sora";font-weight:700;font-size:.64rem;padding:1px 6px;border-radius:5px;}
   .btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 12px;font:inherit;font-size:.82rem;cursor:pointer;color:var(--ink);}
   .btn:hover{border-color:var(--accent);color:var(--accent);}
-  .banner{margin:14px 0 0;font-size:.78rem;padding:9px 12px;border-radius:8px;background:#fff5e6;border:1px solid #f0c987;color:#8a5a00;display:none;}
+  .banner{margin:12px 0 0;font-size:.78rem;padding:9px 12px;border-radius:8px;background:#fff5e6;border:1px solid #f0c987;color:#8a5a00;display:none;}
   .loading{color:var(--muted);font-size:.9rem;padding:40px 0;text-align:center;}
-
-  .project{max-width:540px;margin:22px auto 0;background:linear-gradient(180deg,#5b53c6,#4a41ab);color:#fff;border-radius:16px;padding:15px 22px;text-align:center;box-shadow:0 10px 24px rgba(74,65,171,.28);}
-  .project .c{font-family:"Sora";font-weight:600;font-size:.78rem;opacity:.85;}
-  .project .n{font-family:"Sora";font-weight:700;font-size:1.15rem;margin:2px 0 3px;}
-  .project .d{font-size:.82rem;opacity:.9;line-height:1.4;}
-  .trunk{width:2px;height:24px;background:var(--line);margin:0 auto;}
-  .rail{height:2px;background:var(--line);margin:0 12.5%;}
-  .branches{display:grid;grid-template-columns:repeat(var(--ncols),minmax(250px,1fr));gap:20px;align-items:start;}
-  .col{display:flex;flex-direction:column;position:relative;}
-  .col::before{content:"";width:2px;height:16px;background:var(--line);position:absolute;top:-16px;left:50%;transform:translateX(-1px);}
-  .l1{border-radius:12px;padding:11px 12px;color:#fff;display:flex;gap:9px;align-items:flex-start;box-shadow:0 5px 14px rgba(31,36,51,.14);}
-  .l1 .ico{font-size:1.15rem;line-height:1.15;} .l1 .code{font-family:"Sora";font-weight:700;font-size:.95rem;}
-  .l1 .ttl{font-family:"Sora";font-weight:600;font-size:.86rem;line-height:1.2;margin-top:2px;}
-  .items{display:flex;flex-direction:column;gap:8px;margin-top:11px;position:relative;}
-  .items::before{content:"";position:absolute;top:-11px;bottom:15px;left:14px;width:2px;background:var(--line);}
-  .l2wrap{position:relative;}
-  .l2{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--muted);border-radius:8px;padding:7px 10px 7px 12px;font-size:.78rem;line-height:1.33;position:relative;margin-left:26px;}
-  .l2::before{content:"";position:absolute;top:50%;left:-12px;width:12px;height:2px;background:var(--line);}
-  .l2 b{font-family:"Sora";font-weight:600;display:block;font-size:.72rem;color:var(--muted);margin-bottom:1px;}
-  .kids{margin:7px 0 2px 46px;display:flex;flex-direction:column;gap:6px;position:relative;}
-  .kids::before{content:"";position:absolute;top:-6px;bottom:12px;left:-12px;width:2px;background:var(--line);}
-  .l3{border:1px dashed var(--line);border-radius:7px;padding:5px 9px;font-size:.71rem;line-height:1.3;color:#3a4152;position:relative;}
-  .l3::before{content:"";position:absolute;top:50%;left:-12px;width:12px;height:2px;background:var(--line);}
-  .l3 b{font-family:"Sora";font-weight:600;color:var(--muted);margin-right:5px;}
-  .b1 .l1{background:var(--c1);} .b1 .l2{border-left-color:var(--c1);background:var(--c1t);}
-  .b2 .l1{background:var(--c2);} .b2 .l2{border-left-color:var(--c2);background:var(--c2t);}
-  .b3 .l1{background:var(--c3);} .b3 .l2{border-left-color:var(--c3);background:var(--c3t);}
-  .b4 .l1{background:var(--c4);} .b4 .l2{border-left-color:var(--c4);background:var(--c4t);}
-  .foot{font-size:.76rem;color:var(--muted);line-height:1.5;margin-top:28px;border-top:1px solid var(--line);padding-top:14px;}
+  .scroll{overflow-x:auto;padding-bottom:12px;margin-top:8px;}
+  .map{display:grid;gap:0;min-width:900px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--line);}
+  .map>div{background:var(--paper);}
+  .corner{background:#eef0f5;font-family:"Sora";font-weight:600;font-size:.72rem;color:var(--muted);display:flex;align-items:center;justify-content:flex-end;padding:8px 10px;border-right:2px solid var(--line);}
+  .epic{color:#fff;font-family:"Sora";font-weight:700;font-size:.86rem;padding:9px 12px;border-bottom:2px solid rgba(255,255,255,.35);}
+  .epic .ecode{opacity:.85;font-weight:600;margin-right:2px;}
+  .epic.e2{background:var(--e2);} .epic.e3{background:var(--e3);} .epic.e4{background:var(--e4);}
+  .feat{font-family:"Sora";font-weight:600;font-size:.78rem;line-height:1.25;padding:8px 10px;color:var(--ink);border-right:1px solid var(--line);}
+  .feat .fcode{font-weight:700;margin-right:4px;color:var(--muted);}
+  .feat.e2{background:var(--e2t);} .feat.e3{background:var(--e3t);} .feat.e4{background:var(--e4t);}
+  .rowlbl{background:#eef0f5;font-family:"Sora";font-weight:600;font-size:.76rem;color:var(--ink);padding:10px 8px;border-right:2px solid var(--line);border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px;}
+  .rowlbl.head{background:#e4e7ef;}
+  .mvptag{align-self:flex-start;background:var(--gold);color:#3a2c00;font-family:"Sora";font-weight:700;font-size:.6rem;padding:1px 5px;border-radius:5px;}
+  .cell{border-top:1px solid var(--line);border-right:1px solid var(--line);padding:7px;display:flex;flex-direction:column;gap:7px;min-height:52px;}
+  .card{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--muted);border-radius:8px;padding:7px 9px;box-shadow:0 1px 2px rgba(31,36,51,.05);}
+  .card.e2{border-left-color:var(--e2);} .card.e3{border-left-color:var(--e3);} .card.e4{border-left-color:var(--e4);}
+  .card.ismvp{box-shadow:0 0 0 2px var(--gold) inset,0 1px 2px rgba(31,36,51,.05);}
+  .chd{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:2px;}
+  .ccode{font-family:"Sora";font-weight:700;font-size:.72rem;color:var(--muted);}
+  .mvp{background:var(--gold);color:#3a2c00;font-family:"Sora";font-weight:700;font-size:.6rem;padding:1px 5px;border-radius:5px;}
+  .ctitle{font-size:.79rem;line-height:1.28;font-weight:500;}
+  .cmeta{font-size:.68rem;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:5px;}
+  .foot{font-size:.76rem;color:var(--muted);line-height:1.5;margin-top:22px;border-top:1px solid var(--line);padding-top:14px;}
   .foot b{color:var(--ink);font-family:"Sora";}
-  @media (max-width:1024px){.branches{grid-template-columns:repeat(2,1fr);}.rail,.trunk,.col::before{display:none;}}
-  @media (max-width:560px){.branches{grid-template-columns:1fr;}}
-  @media print{@page{size:A3 landscape;margin:9mm;}.topline,.banner,.foot,.sub,.kicker,.btn,.nav{display:none!important;}
-    html,body{background:#fff;}.wrap{max-width:none;padding:0;}.l1,.project{box-shadow:none;}.col,.l2wrap{break-inside:avoid;}}
+  @media print{@page{size:A3 landscape;margin:8mm;}.btn,.nav,.banner{display:none!important;}.scroll{overflow:visible;}
+    html,body{background:#fff;}.wrap{max-width:none;padding:0;}.map{min-width:0;}.card{box-shadow:none;}.card.ismvp{box-shadow:0 0 0 2px var(--gold) inset;}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <nav class="nav" style="display:flex;gap:8px;margin-bottom:16px;font-family:Sora,sans-serif;font-size:.8rem"><a class="cur" href="index.html" style="text-decoration:none;border:1px solid #4a41ab;border-radius:9px;padding:7px 12px;background:#4a41ab;color:#fff">◧ Diagrama WBS</a><a href="storymap.html" style="text-decoration:none;border:1px solid #d3d9e4;border-radius:9px;padding:7px 12px;background:#fff;color:#616a7d">▤ Story Map</a></nav>
   <p class="kicker">ITM · Esp. Ingeniería de Software · Gestión de Proyectos</p>
-  <h1>WBS / EDT — Tutor Inteligente ITM (ITMentorSoft)</h1>
-  <p class="sub">Estructura de Desglose del Trabajo del MVP. Este diagrama se genera automáticamente a partir del archivo Excel del repositorio; para actualizarlo, se reemplaza ese archivo. Las cuatro ramas se descomponen de forma consistente hasta el Nivel 3.</p>
+  <h1>Story Map — Tutor Inteligente ITM (ITMentorSoft)</h1>
+  <p class="sub">Mapa de historias de usuario generado desde el backlog de Azure DevOps. La <b>columna vertebral</b> son los Temas y sus Épicas (recorrido del usuario); cada tarjeta es una <b>Historia de Usuario</b>; las <b>filas son los sprints</b>. Las historias <b>MVP</b> forman la primera entrega de extremo a extremo.</p>
   <div class="topline">
     <div class="legend">
-      <span><i class="swatch s0"></i>Nivel 0 · Proyecto</span>
-      <span><i class="swatch s1"></i>Nivel 1 · Entregables</span>
-      <span><i class="swatch s2"></i>Nivel 2 · Subentregables</span>
-      <span><i class="swatch s3"></i>Nivel 3 · Paquetes de trabajo</span>
+      <span class="mvpkey">MVP</span>
+      <span><span class="dot dNew"></span>New</span>
+      <span><span class="dot dApp"></span>Approved</span>
+      <span><span class="dot dProg"></span>In Progress</span>
+      <span><span class="dot dDone"></span>Done</span>
     </div>
     <button class="btn" onclick="window.print()">🖨 Imprimir / PDF</button>
   </div>
   <div id="banner" class="banner"></div>
-  <div id="content"><div class="loading">Cargando diagrama desde el Excel…</div></div>
-  <p class="foot"><b>Fuente de datos:</b> <code>data/WBS_Tutor_Inteligente_ITM.xlsx</code>. Para modificar el WBS, edita ese Excel (columnas <i>Código · Nivel · Entregable/… · Rama</i>; la jerarquía se deduce del Código) y publícalo de nuevo. La rama <b>4. Pruebas</b> baja a Nivel 3 en 4.4 (No funcionales) agrupando los 14 RNF ISO/IEC 25010.</p>
+  <div id="content"><div class="loading">Cargando story map desde el backlog…</div></div>
+  <p class="foot"><b>Cómo actualizarlo:</b> exporta el backlog desde Azure DevOps (Boards → columnas ID, Title, Work Item Type, State, Effort, Iteration Path, Tags) y reemplaza <code>data/backlog.csv</code> en el repositorio. La jerarquía se arma por orden y tipo (Epic → Feature → Product Backlog Item → Task); el sprint sale de <i>Iteration Path</i> y el MVP de la etiqueta <i>Tags</i>.</p>
 </div>
 <script>
-const FALLBACK = {"name": "Tutor Inteligente ITM", "desc": "Diagnóstico adaptativo + rutas de aprendizaje personalizadas (MVP)", "children": [{"name": "Requisitos y análisis", "children": [{"name": "Elicitación de requisitos", "children": [{"name": "Instrumentos de encuesta (docentes y estudiantes)", "children": []}, {"name": "Análisis del problema y necesidades", "children": []}]}, {"name": "Requisitos funcionales (RF)", "children": []}, {"name": "Historias de usuario y backlog priorizado", "children": []}, {"name": "Requisitos no funcionales (ISO/IEC 25010)", "children": [{"name": "Catálogo de RNF (14 requisitos)", "children": []}, {"name": "Priorización de atributos de calidad (pesos 0–5)", "children": []}]}, {"name": "Criterios de aceptación", "children": []}]}, {"name": "Diseño", "children": [{"name": "Arquitectura de la solución", "children": [{"name": "Diagrama de arquitectura de alto nivel (4 módulos · SPA + API REST · API + worker · CQRS/colas)", "children": []}]}, {"name": "Decisiones arquitectónicas (ADR) y stack", "children": []}, {"name": "Modelo de datos", "children": []}, {"name": "Diseño del modelo evaluativo y rúbricas", "children": [{"name": "Rúbricas y contexto de evaluación (contexto, resp. correcta/incorrecta, palabras clave, resp. del estudiante)", "children": []}, {"name": "Criterios de clasificación por niveles (LLM juez)", "children": []}, {"name": "Algoritmo de selección de rutas", "children": []}]}, {"name": "Mockups de baja fidelidad", "children": []}]}, {"name": "Desarrollo", "children": [{"name": "Módulo Gestión de Usuarios", "children": [{"name": "Backend (auth, RBAC, MFA-OTP)", "children": []}, {"name": "Frontend (registro, login, perfil)", "children": []}]}, {"name": "Módulo Evaluación de Conocimientos", "children": [{"name": "Backend (cuestionarios, autosave)", "children": []}, {"name": "Evaluación con LLM juez (envío de contexto + rúbrica)", "children": []}, {"name": "Frontend (vista de evaluación)", "children": []}]}, {"name": "Módulo Clasificación y Diagnóstico", "children": [{"name": "Lógica de clasificación por niveles (a partir del LLM juez)", "children": []}, {"name": "Servicio de clasificación e historial de evolución", "children": []}]}, {"name": "Módulo Recomendación de Rutas de Aprendizaje", "children": [{"name": "Backend (asignación de rutas, recursos)", "children": []}, {"name": "Frontend (vistas de ruta, progreso, retroalimentación)", "children": []}]}, {"name": "Infraestructura y componentes transversales", "children": [{"name": "API REST y configuración de entorno", "children": []}, {"name": "Worker de mensajería (colas durables, reintentos)", "children": []}, {"name": "Worker de LLM", "children": []}, {"name": "Audit trail / trazabilidad", "children": []}, {"name": "Failover del proveedor LLM", "children": []}]}]}, {"name": "Pruebas", "children": [{"name": "Pruebas unitarias", "children": []}, {"name": "Pruebas de integración", "children": []}, {"name": "Pruebas funcionales (validación de HU)", "children": []}, {"name": "Pruebas no funcionales", "children": [{"name": "Seguridad (NFR-01, 02, 03, 10)", "children": []}, {"name": "Fiabilidad: tolerancia a fallos y recuperación (NFR-04, 05, 06, 13, 14)", "children": []}, {"name": "Disponibilidad (NFR-11, 12)", "children": []}, {"name": "Rendimiento / carga", "children": []}]}, {"name": "Pruebas de aceptación (UAT con docentes)", "children": []}, {"name": "Corrección de defectos", "children": []}]}]};
-const XLSX_URL = "data/WBS_Tutor_Inteligente_ITM.xlsx";
-const ICONS = ['🔍','✏️','⚙️','✅','📦','🚀','📊','🔧'];
+const FALLBACK={"epics": [{"code": "Tema 2", "title": "Evaluación y categorización de estudiantes", "features": [{"code": "2.1", "title": "Evaluación de conocimientos", "stories": [{"code": "2.1.1", "title": "Desarrollo de evaluación", "sprint": 4, "state": "New", "effort": 5, "mvp": true, "tasks": 4}, {"code": "2.1.2", "title": "Evaluación de un tema especifico", "sprint": 3, "state": "Approved", "effort": 5, "mvp": true, "tasks": 5}, {"code": "2.1.3", "title": "Creación de rubricas", "sprint": 3, "state": "Approved", "effort": 5, "mvp": true, "tasks": 3}]}, {"code": "2.2", "title": "Asignación de categorías", "stories": [{"code": "2.2.1", "title": "Asignación de categoría", "sprint": 4, "state": "New", "effort": 5, "mvp": true, "tasks": 6}, {"code": "2.2.2", "title": "Identificación de debilidades", "sprint": 4, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "2.2.3", "title": "Reportes por categoría", "sprint": 5, "state": "New", "effort": null, "mvp": false, "tasks": 4}]}]}, {"code": "Tema 3", "title": "Personalización de recursos por categoría", "features": [{"code": "3.1", "title": "Administración de recursos educativos", "stories": [{"code": "3.1.1", "title": "Registro de contenido acádemico", "sprint": 6, "state": "New", "effort": null, "mvp": false, "tasks": 4}, {"code": "3.1.2", "title": "Ruta de aprendizaje", "sprint": 6, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "3.1.3", "title": "Actualizar recursos acádemicos", "sprint": 6, "state": "New", "effort": null, "mvp": false, "tasks": 4}, {"code": "3.1.4", "title": "Reportes de contenido acádemico", "sprint": 6, "state": "New", "effort": null, "mvp": false, "tasks": 5}]}, {"code": "3.2", "title": "Gestión de rutas de aprendizaje", "stories": [{"code": "3.2.1", "title": "Actualizar rutas de aprendizaje", "sprint": 7, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "3.2.2", "title": "Reportes por estudiante", "sprint": 7, "state": "New", "effort": null, "mvp": false, "tasks": 4}, {"code": "3.2.3", "title": "Recepción de ruta de aprendizaje personalizada", "sprint": 6, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "3.2.4", "title": "Dar retrospectiva sobre contenido acádemico", "sprint": 7, "state": "New", "effort": null, "mvp": false, "tasks": 5}]}]}, {"code": "Tema 4", "title": "Seguimiento y retroalimentación", "features": [{"code": "4.1", "title": "Visualización de progreso", "stories": [{"code": "4.1.1", "title": "Progreso de aprendizaje", "sprint": 7, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "4.1.2", "title": "Metricas por estudiante", "sprint": 7, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "4.1.3", "title": "Progreso de estudiantes desde Docente", "sprint": 7, "state": "New", "effort": null, "mvp": false, "tasks": 4}]}, {"code": "4.2", "title": "Retroalimentación", "stories": [{"code": "4.2.1", "title": "Feedback por evaluación", "sprint": 8, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "4.2.2", "title": "Visualización de debilidades", "sprint": 8, "state": "New", "effort": null, "mvp": false, "tasks": 5}, {"code": "4.2.3", "title": "Explicación de categorización", "sprint": 8, "state": "New", "effort": null, "mvp": false, "tasks": 4}]}]}]};
+const CSV_URL="data/backlog.csv";
+const CLS=['e2','e3','e4'];
+function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
+function banner(m){const b=document.getElementById('banner');b.textContent=m;b.style.display='block';}
 
-function esc(s){ return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-function banner(msg){ const b=document.getElementById('banner'); b.textContent=msg; b.style.display='block'; }
-
-function treeFromAOA(aoa){
-  let hi=-1,cCode=0,cElem=2;
+function modelFromAOA(aoa){
+  let hi=-1,cT=-1,cW=-1,cS=-1,cE=-1,cI=-1,cG=-1;
   for(let r=0;r<aoa.length;r++){
-    const row=aoa[r].map(x=>String(x).trim());
-    const idx=row.findIndex(x=>x.toLowerCase().startsWith('código')||x.toLowerCase().startsWith('codigo'));
-    if(idx>=0){ hi=r; cCode=idx; const ei=row.findIndex(x=>/entregable|elemento|subentregable|paquete/i.test(x)); if(ei>=0)cElem=ei; break; }
+    const row=aoa[r].map(x=>String(x).trim().toLowerCase());
+    const w=row.indexOf('work item type');
+    if(w>=0){hi=r;cW=w;cT=row.indexOf('title');cS=row.indexOf('state');cE=row.indexOf('effort');
+      cI=row.findIndex(x=>x.startsWith('iteration'));cG=row.indexOf('tags');break;}
   }
-  if(hi<0) return null;
-  const t={name:"Tutor Inteligente ITM",desc:"Diagnóstico adaptativo + rutas de aprendizaje personalizadas (MVP)",children:[]};
-  const map={};
+  if(hi<0||cT<0||cW<0) return null;
+  const model={epics:[]};let ce=null,cf=null,cp=null;
   for(let r=hi+1;r<aoa.length;r++){
-    const code=String(aoa[r][cCode]||'').trim();
-    const elem=String(aoa[r][cElem]||'').trim();
-    if(!code||!elem) continue;
-    if(code==='0'){ t.name=elem.replace(/^proyecto:\s*/i,''); continue; }
-    if(!/^\d+(\.\d+)*$/.test(code)) continue;
-    const node={name:elem,children:[]}; map[code]=node;
-    const parts=code.split('.');
-    if(parts.length===1){ t.children.push(node); }
-    else { const pc=parts.slice(0,-1).join('.'); (map[pc]?map[pc].children:t.children).push(node); }
+    const g=(c)=>c>=0?String(aoa[r][c]||'').trim():'';
+    const type=g(cW), title=g(cT); if(!type||!title) continue;
+    if(/epic/i.test(type)){const m=title.match(/(Tema\s+\d+)\s*-\s*(.*)/i);
+      ce={code:m?m[1]:title,title:m?m[2]:title,features:[]};model.epics.push(ce);}
+    else if(/feature/i.test(type)){const m=title.match(/Épica\s+([\d.]+)\s*-\s*(.*)/i);
+      cf={code:m?m[1]:'',title:m?m[2]:title,stories:[]};if(ce)ce.features.push(cf);}
+    else if(/product backlog item|backlog item|user story|historia/i.test(type)){
+      const m=title.match(/HU\s+([\d.]+)\s+(.*)/i);
+      const it=g(cI),sm=it.match(/Sprint\s*(\d+)/i);
+      const eff=g(cE);
+      cp={code:m?m[1]:'',title:m?m[2]:title,sprint:sm?parseInt(sm[1]):0,
+          state:g(cS)||'New',effort:eff?eff:null,mvp:/mvp/i.test(g(cG)),tasks:0};
+      if(cf)cf.stories.push(cp);}
+    else if(/task/i.test(type)){ if(cp)cp.tasks++; }
   }
-  return t.children.length? t : null;
+  return model.epics.length?model:null;
 }
 
+function render(model){
+  const feats=[];let col=2;const bands=[];
+  model.epics.forEach((ep,ei)=>{const cls=CLS[ei%CLS.length];const start=col;
+    (ep.features||[]).forEach(f=>{feats.push({cls,f,col});col++;});bands.push({ep,cls,start,end:col-1});});
+  const nfeat=col-2; if(nfeat<=0){document.getElementById('content').innerHTML='<div class="loading">El backlog no tiene Épicas/Features reconocibles.</div>';return;}
+  const set=new Set();model.epics.forEach(ep=>(ep.features||[]).forEach(f=>(f.stories||[]).forEach(s=>set.add(s.sprint))));
+  const sprints=[...set].sort((a,b)=>a-b);
+  const cells=[];
+  cells.push('<div class="corner" style="grid-row:1;grid-column:1">Recorrido&nbsp;→</div>');
+  bands.forEach(b=>cells.push('<div class="epic '+b.cls+'" style="grid-row:1;grid-column:'+b.start+' / '+(b.end+1)+'"><span class="ecode">'+esc(b.ep.code)+'</span> · '+esc(b.ep.title)+'</div>'));
+  cells.push('<div class="rowlbl head" style="grid-row:2;grid-column:1">Épicas</div>');
+  feats.forEach(x=>cells.push('<div class="feat '+x.cls+'" style="grid-row:2;grid-column:'+x.col+'"><span class="fcode">'+esc(x.f.code)+'</span> '+esc(x.f.title)+'</div>'));
+  sprints.forEach((sp,si)=>{const gr=3+si;
+    const mvpHere=feats.some(x=>(x.f.stories||[]).some(s=>s.mvp&&s.sprint===sp));
+    cells.push('<div class="rowlbl" style="grid-row:'+gr+';grid-column:1">'+(sp?'Sprint '+sp:'Sin sprint')+(mvpHere?'<span class="mvptag">MVP</span>':'')+'</div>');
+    feats.forEach(x=>{const here=(x.f.stories||[]).filter(s=>s.sprint===sp);
+      cells.push('<div class="cell" style="grid-row:'+gr+';grid-column:'+x.col+'">'+here.map(s=>card(s,x.cls)).join('')+'</div>');});
+  });
+  const tmpl='104px repeat('+nfeat+',minmax(196px,1fr))';
+  document.getElementById('content').innerHTML='<div class="scroll"><div class="map" style="grid-template-columns:'+tmpl+'">'+cells.join('')+'</div></div>';
+}
+const DOT={'New':'dNew','Approved':'dApp','In Progress':'dProg','Done':'dDone'};
+function card(s,cls){
+  const badge=s.mvp?'<span class="mvp">MVP</span>':'';
+  const pts=s.effort?(' · '+s.effort+' pts'):'';
+  const tks=s.tasks?(' · '+s.tasks+' tareas'):'';
+  const dot=DOT[s.state]||'dNew';
+  return '<div class="card '+cls+(s.mvp?' ismvp':'')+'"><div class="chd"><span class="ccode">HU '+esc(s.code)+'</span>'+badge+'</div><div class="ctitle">'+esc(s.title)+'</div><div class="cmeta"><span class="dot '+dot+'"></span>'+esc(s.state)+pts+tks+'</div></div>';
+}
 async function load(){
-  if(typeof XLSX==='undefined'){ banner('No se pudo cargar la librería de lectura de Excel (sin conexión). Mostrando la versión incluida.'); return render(FALLBACK); }
+  if(typeof XLSX==='undefined'){banner('No se pudo cargar la librería de lectura (sin conexión). Mostrando la versión incluida.');return render(FALLBACK);}
   try{
-    const res=await fetch(XLSX_URL+'?v='+Date.now(),{cache:'no-store'});
+    const res=await fetch(CSV_URL+'?v='+Date.now(),{cache:'no-store'});
     if(!res.ok) throw new Error('HTTP '+res.status);
-    const buf=await res.arrayBuffer();
-    const wb=XLSX.read(new Uint8Array(buf),{type:'array'});
+    const wb=XLSX.read(new Uint8Array(await res.arrayBuffer()),{type:'array'});
     const ws=wb.Sheets[wb.SheetNames[0]];
     const aoa=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:''});
-    const t=treeFromAOA(aoa);
-    if(!t){ banner('El Excel no tiene el formato esperado; mostrando la versión incluida.'); return render(FALLBACK); }
-    render(t);
+    const m=modelFromAOA(aoa);
+    if(!m){banner('El backlog no tiene el formato esperado; mostrando la versión incluida.');return render(FALLBACK);}
+    render(m);
   }catch(e){
-    banner('No se pudo leer el Excel del repositorio (¿abriste el archivo localmente en vez de por el enlace web?). Mostrando la versión incluida.');
+    banner('No se pudo leer el backlog del repositorio (¿abriste el archivo localmente?). Mostrando la versión incluida.');
     render(FALLBACK);
   }
-}
-
-function subTree(children,prefix){
-  return children.map((g,k)=>{ const gcode=prefix+'.'+(k+1);
-    const nested=(g.children&&g.children.length)?'<div class="kids">'+subTree(g.children,gcode)+'</div>':'';
-    return '<div class="l3"><b>'+gcode+'</b>'+esc(g.name)+'</div>'+nested; }).join('');
-}
-function render(t){
-  const cols=(t.children||[]).map((b,i)=>{
-    const c=(i%4)+1,code=String(i+1),ico=ICONS[i%ICONS.length];
-    const items=(b.children||[]).map((s,j)=>{ const scode=code+'.'+(j+1);
-      const kids=(s.children&&s.children.length)?'<div class="kids">'+subTree(s.children,scode)+'</div>':'';
-      return '<div class="l2wrap"><div class="l2"><b>'+scode+'</b>'+esc(s.name)+'</div>'+kids+'</div>'; }).join('');
-    return '<div class="col b'+c+'"><div class="l1"><span class="ico">'+ico+'</span><div><div class="code">'+code+'</div><div class="ttl">'+esc(b.name)+'</div></div></div><div class="items">'+items+'</div></div>';
-  }).join('');
-  const ncols=Math.max(1,(t.children||[]).length);
-  document.getElementById('content').innerHTML=
-    '<div class="project"><div class="c">0 · Proyecto</div><div class="n">'+esc(t.name)+'</div><div class="d">'+esc(t.desc||'')+'</div></div>'+
-    '<div class="trunk"></div><div class="rail"></div>'+
-    '<div class="branches" style="--ncols:'+ncols+'">'+cols+'</div>';
 }
 load();
 </script>
