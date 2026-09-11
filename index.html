@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WBS / EDT · Tutor Inteligente ITM</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#1f2433;--muted:#616a7d;--line:#c3cbda;--paper:#f7f8fb;--card:#fff;
+    --c1:#0d8f8a;--c1t:#e2f4f2;--c2:#8a4fd6;--c2t:#f0e9fb;--c3:#2f7bd6;--c3t:#e6f0fb;--c4:#2f9e57;--c4t:#e5f5ea;--accent:#4a41ab;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;}
+  .wrap{max-width:1360px;margin:0 auto;padding:34px 30px 60px;}
+  .kicker{font-family:"Sora";font-weight:600;font-size:.8rem;color:var(--muted);margin:0 0 6px;}
+  h1{font-family:"Sora";font-weight:700;font-size:1.7rem;line-height:1.12;margin:0 0 8px;}
+  .sub{font-size:.9rem;color:var(--muted);max-width:78ch;line-height:1.5;margin:0;}
+  .topline{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:14px;}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;font-size:.8rem;color:var(--muted);}
+  .legend span{display:inline-flex;align-items:center;gap:8px;}
+  .swatch{width:24px;height:13px;border-radius:4px;border:1px solid var(--line);}
+  .s0{background:linear-gradient(#eef0ff,#e3e6ff);border-color:#b9bffb;} .s1{background:#e9edf5;}
+  .s2{background:#fff;} .s3{background:#fff;border-style:dashed;}
+  .btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 12px;font:inherit;font-size:.82rem;cursor:pointer;color:var(--ink);}
+  .btn:hover{border-color:var(--accent);color:var(--accent);}
+  .banner{margin:14px 0 0;font-size:.78rem;padding:9px 12px;border-radius:8px;background:#fff5e6;border:1px solid #f0c987;color:#8a5a00;display:none;}
+  .loading{color:var(--muted);font-size:.9rem;padding:40px 0;text-align:center;}
+
+  .project{max-width:540px;margin:22px auto 0;background:linear-gradient(180deg,#5b53c6,#4a41ab);color:#fff;border-radius:16px;padding:15px 22px;text-align:center;box-shadow:0 10px 24px rgba(74,65,171,.28);}
+  .project .c{font-family:"Sora";font-weight:600;font-size:.78rem;opacity:.85;}
+  .project .n{font-family:"Sora";font-weight:700;font-size:1.15rem;margin:2px 0 3px;}
+  .project .d{font-size:.82rem;opacity:.9;line-height:1.4;}
+  .trunk{width:2px;height:24px;background:var(--line);margin:0 auto;}
+  .rail{height:2px;background:var(--line);margin:0 12.5%;}
+  .branches{display:grid;grid-template-columns:repeat(var(--ncols),minmax(250px,1fr));gap:20px;align-items:start;}
+  .col{display:flex;flex-direction:column;position:relative;}
+  .col::before{content:"";width:2px;height:16px;background:var(--line);position:absolute;top:-16px;left:50%;transform:translateX(-1px);}
+  .l1{border-radius:12px;padding:11px 12px;color:#fff;display:flex;gap:9px;align-items:flex-start;box-shadow:0 5px 14px rgba(31,36,51,.14);}
+  .l1 .ico{font-size:1.15rem;line-height:1.15;} .l1 .code{font-family:"Sora";font-weight:700;font-size:.95rem;}
+  .l1 .ttl{font-family:"Sora";font-weight:600;font-size:.86rem;line-height:1.2;margin-top:2px;}
+  .items{display:flex;flex-direction:column;gap:8px;margin-top:11px;position:relative;}
+  .items::before{content:"";position:absolute;top:-11px;bottom:15px;left:14px;width:2px;background:var(--line);}
+  .l2wrap{position:relative;}
+  .l2{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--muted);border-radius:8px;padding:7px 10px 7px 12px;font-size:.78rem;line-height:1.33;position:relative;margin-left:26px;}
+  .l2::before{content:"";position:absolute;top:50%;left:-12px;width:12px;height:2px;background:var(--line);}
+  .l2 b{font-family:"Sora";font-weight:600;display:block;font-size:.72rem;color:var(--muted);margin-bottom:1px;}
+  .kids{margin:7px 0 2px 46px;display:flex;flex-direction:column;gap:6px;position:relative;}
+  .kids::before{content:"";position:absolute;top:-6px;bottom:12px;left:-12px;width:2px;background:var(--line);}
+  .l3{border:1px dashed var(--line);border-radius:7px;padding:5px 9px;font-size:.71rem;line-height:1.3;color:#3a4152;position:relative;}
+  .l3::before{content:"";position:absolute;top:50%;left:-12px;width:12px;height:2px;background:var(--line);}
+  .l3 b{font-family:"Sora";font-weight:600;color:var(--muted);margin-right:5px;}
+  .b1 .l1{background:var(--c1);} .b1 .l2{border-left-color:var(--c1);background:var(--c1t);}
+  .b2 .l1{background:var(--c2);} .b2 .l2{border-left-color:var(--c2);background:var(--c2t);}
+  .b3 .l1{background:var(--c3);} .b3 .l2{border-left-color:var(--c3);background:var(--c3t);}
+  .b4 .l1{background:var(--c4);} .b4 .l2{border-left-color:var(--c4);background:var(--c4t);}
+  .foot{font-size:.76rem;color:var(--muted);line-height:1.5;margin-top:28px;border-top:1px solid var(--line);padding-top:14px;}
+  .foot b{color:var(--ink);font-family:"Sora";}
+  @media (max-width:1024px){.branches{grid-template-columns:repeat(2,1fr);}.rail,.trunk,.col::before{display:none;}}
+  @media (max-width:560px){.branches{grid-template-columns:1fr;}}
+  @media print{@page{size:A3 landscape;margin:9mm;}.topline,.banner,.foot,.sub,.kicker,.btn,.nav{display:none!important;}
+    html,body{background:#fff;}.wrap{max-width:none;padding:0;}.l1,.project{box-shadow:none;}.col,.l2wrap{break-inside:avoid;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="nav" style="display:flex;gap:8px;margin-bottom:16px;font-family:Sora,sans-serif;font-size:.8rem"><a class="cur" href="index.html" style="text-decoration:none;border:1px solid #4a41ab;border-radius:9px;padding:7px 12px;background:#4a41ab;color:#fff">◧ Diagrama WBS</a><a href="storymap.html" style="text-decoration:none;border:1px solid #d3d9e4;border-radius:9px;padding:7px 12px;background:#fff;color:#616a7d">▤ Story Map</a></nav>
+  <p class="kicker">ITM · Esp. Ingeniería de Software · Gestión de Proyectos</p>
+  <h1>WBS / EDT — Tutor Inteligente ITM (ITMentorSoft)</h1>
+  <p class="sub">Estructura de Desglose del Trabajo del MVP. Este diagrama se genera automáticamente a partir del archivo Excel del repositorio; para actualizarlo, se reemplaza ese archivo. Las cuatro ramas se descomponen de forma consistente hasta el Nivel 3.</p>
+  <div class="topline">
+    <div class="legend">
+      <span><i class="swatch s0"></i>Nivel 0 · Proyecto</span>
+      <span><i class="swatch s1"></i>Nivel 1 · Entregables</span>
+      <span><i class="swatch s2"></i>Nivel 2 · Subentregables</span>
+      <span><i class="swatch s3"></i>Nivel 3 · Paquetes de trabajo</span>
+    </div>
+    <button class="btn" onclick="window.print()">🖨 Imprimir / PDF</button>
+  </div>
+  <div id="banner" class="banner"></div>
+  <div id="content"><div class="loading">Cargando diagrama desde el Excel…</div></div>
+  <p class="foot"><b>Fuente de datos:</b> <code>data/WBS_Tutor_Inteligente_ITM.xlsx</code>. Para modificar el WBS, edita ese Excel (columnas <i>Código · Nivel · Entregable/… · Rama</i>; la jerarquía se deduce del Código) y publícalo de nuevo. La rama <b>4. Pruebas</b> baja a Nivel 3 en 4.4 (No funcionales) agrupando los 14 RNF ISO/IEC 25010.</p>
+</div>
+<script>
+const FALLBACK = {"name": "Tutor Inteligente ITM", "desc": "Diagnóstico adaptativo + rutas de aprendizaje personalizadas (MVP)", "children": [{"name": "Requisitos y análisis", "children": [{"name": "Elicitación de requisitos", "children": [{"name": "Instrumentos de encuesta (docentes y estudiantes)", "children": []}, {"name": "Análisis del problema y necesidades", "children": []}]}, {"name": "Requisitos funcionales (RF)", "children": []}, {"name": "Historias de usuario y backlog priorizado", "children": []}, {"name": "Requisitos no funcionales (ISO/IEC 25010)", "children": [{"name": "Catálogo de RNF (14 requisitos)", "children": []}, {"name": "Priorización de atributos de calidad (pesos 0–5)", "children": []}]}, {"name": "Criterios de aceptación", "children": []}]}, {"name": "Diseño", "children": [{"name": "Arquitectura de la solución", "children": [{"name": "Diagrama de arquitectura de alto nivel (4 módulos · SPA + API REST · API + worker · CQRS/colas)", "children": []}]}, {"name": "Decisiones arquitectónicas (ADR) y stack", "children": []}, {"name": "Modelo de datos", "children": []}, {"name": "Diseño del modelo evaluativo y rúbricas", "children": [{"name": "Rúbricas y contexto de evaluación (contexto, resp. correcta/incorrecta, palabras clave, resp. del estudiante)", "children": []}, {"name": "Criterios de clasificación por niveles (LLM juez)", "children": []}, {"name": "Algoritmo de selección de rutas", "children": []}]}, {"name": "Mockups de baja fidelidad", "children": []}]}, {"name": "Desarrollo", "children": [{"name": "Módulo Gestión de Usuarios", "children": [{"name": "Backend (auth, RBAC, MFA-OTP)", "children": []}, {"name": "Frontend (registro, login, perfil)", "children": []}]}, {"name": "Módulo Evaluación de Conocimientos", "children": [{"name": "Backend (cuestionarios, autosave)", "children": []}, {"name": "Evaluación con LLM juez (envío de contexto + rúbrica)", "children": []}, {"name": "Frontend (vista de evaluación)", "children": []}]}, {"name": "Módulo Clasificación y Diagnóstico", "children": [{"name": "Lógica de clasificación por niveles (a partir del LLM juez)", "children": []}, {"name": "Servicio de clasificación e historial de evolución", "children": []}]}, {"name": "Módulo Recomendación de Rutas de Aprendizaje", "children": [{"name": "Backend (asignación de rutas, recursos)", "children": []}, {"name": "Frontend (vistas de ruta, progreso, retroalimentación)", "children": []}]}, {"name": "Infraestructura y componentes transversales", "children": [{"name": "API REST y configuración de entorno", "children": []}, {"name": "Worker de mensajería (colas durables, reintentos)", "children": []}, {"name": "Worker de LLM", "children": []}, {"name": "Audit trail / trazabilidad", "children": []}, {"name": "Failover del proveedor LLM", "children": []}]}]}, {"name": "Pruebas", "children": [{"name": "Pruebas unitarias", "children": []}, {"name": "Pruebas de integración", "children": []}, {"name": "Pruebas funcionales (validación de HU)", "children": []}, {"name": "Pruebas no funcionales", "children": [{"name": "Seguridad (NFR-01, 02, 03, 10)", "children": []}, {"name": "Fiabilidad: tolerancia a fallos y recuperación (NFR-04, 05, 06, 13, 14)", "children": []}, {"name": "Disponibilidad (NFR-11, 12)", "children": []}, {"name": "Rendimiento / carga", "children": []}]}, {"name": "Pruebas de aceptación (UAT con docentes)", "children": []}, {"name": "Corrección de defectos", "children": []}]}]};
+const XLSX_URL = "data/WBS_Tutor_Inteligente_ITM.xlsx";
+const ICONS = ['🔍','✏️','⚙️','✅','📦','🚀','📊','🔧'];
+
+function esc(s){ return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+function banner(msg){ const b=document.getElementById('banner'); b.textContent=msg; b.style.display='block'; }
+
+function treeFromAOA(aoa){
+  let hi=-1,cCode=0,cElem=2;
+  for(let r=0;r<aoa.length;r++){
+    const row=aoa[r].map(x=>String(x).trim());
+    const idx=row.findIndex(x=>x.toLowerCase().startsWith('código')||x.toLowerCase().startsWith('codigo'));
+    if(idx>=0){ hi=r; cCode=idx; const ei=row.findIndex(x=>/entregable|elemento|subentregable|paquete/i.test(x)); if(ei>=0)cElem=ei; break; }
+  }
+  if(hi<0) return null;
+  const t={name:"Tutor Inteligente ITM",desc:"Diagnóstico adaptativo + rutas de aprendizaje personalizadas (MVP)",children:[]};
+  const map={};
+  for(let r=hi+1;r<aoa.length;r++){
+    const code=String(aoa[r][cCode]||'').trim();
+    const elem=String(aoa[r][cElem]||'').trim();
+    if(!code||!elem) continue;
+    if(code==='0'){ t.name=elem.replace(/^proyecto:\s*/i,''); continue; }
+    if(!/^\d+(\.\d+)*$/.test(code)) continue;
+    const node={name:elem,children:[]}; map[code]=node;
+    const parts=code.split('.');
+    if(parts.length===1){ t.children.push(node); }
+    else { const pc=parts.slice(0,-1).join('.'); (map[pc]?map[pc].children:t.children).push(node); }
+  }
+  return t.children.length? t : null;
+}
+
+async function load(){
+  if(typeof XLSX==='undefined'){ banner('No se pudo cargar la librería de lectura de Excel (sin conexión). Mostrando la versión incluida.'); return render(FALLBACK); }
+  try{
+    const res=await fetch(XLSX_URL+'?v='+Date.now(),{cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const buf=await res.arrayBuffer();
+    const wb=XLSX.read(new Uint8Array(buf),{type:'array'});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const aoa=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:''});
+    const t=treeFromAOA(aoa);
+    if(!t){ banner('El Excel no tiene el formato esperado; mostrando la versión incluida.'); return render(FALLBACK); }
+    render(t);
+  }catch(e){
+    banner('No se pudo leer el Excel del repositorio (¿abriste el archivo localmente en vez de por el enlace web?). Mostrando la versión incluida.');
+    render(FALLBACK);
+  }
+}
+
+function subTree(children,prefix){
+  return children.map((g,k)=>{ const gcode=prefix+'.'+(k+1);
+    const nested=(g.children&&g.children.length)?'<div class="kids">'+subTree(g.children,gcode)+'</div>':'';
+    return '<div class="l3"><b>'+gcode+'</b>'+esc(g.name)+'</div>'+nested; }).join('');
+}
+function render(t){
+  const cols=(t.children||[]).map((b,i)=>{
+    const c=(i%4)+1,code=String(i+1),ico=ICONS[i%ICONS.length];
+    const items=(b.children||[]).map((s,j)=>{ const scode=code+'.'+(j+1);
+      const kids=(s.children&&s.children.length)?'<div class="kids">'+subTree(s.children,scode)+'</div>':'';
+      return '<div class="l2wrap"><div class="l2"><b>'+scode+'</b>'+esc(s.name)+'</div>'+kids+'</div>'; }).join('');
+    return '<div class="col b'+c+'"><div class="l1"><span class="ico">'+ico+'</span><div><div class="code">'+code+'</div><div class="ttl">'+esc(b.name)+'</div></div></div><div class="items">'+items+'</div></div>';
+  }).join('');
+  const ncols=Math.max(1,(t.children||[]).length);
+  document.getElementById('content').innerHTML=
+    '<div class="project"><div class="c">0 · Proyecto</div><div class="n">'+esc(t.name)+'</div><div class="d">'+esc(t.desc||'')+'</div></div>'+
+    '<div class="trunk"></div><div class="rail"></div>'+
+    '<div class="branches" style="--ncols:'+ncols+'">'+cols+'</div>';
+}
+load();
+</script>
+</body>
+</html>
