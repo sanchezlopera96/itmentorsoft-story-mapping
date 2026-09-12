@@ -66,12 +66,13 @@
   .cmeta{font-size:.68rem;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
   .foot{font-size:.76rem;color:var(--muted);line-height:1.5;margin-top:22px;border-top:1px solid var(--line);padding-top:14px;}
   .foot b{color:var(--ink);font-family:"Sora";}
-  @media print{@page{size:A3 landscape;margin:8mm;}.btn,.banner{display:none!important;}.scroll{overflow:visible;}
+  @media print{@page{size:A3 landscape;margin:8mm;}.btn,.banner,.nav{display:none!important;}.scroll{overflow:visible;}
     html,body{background:#fff;}.wrap{max-width:none;padding:0;}.map{min-width:0;}.card,.epic{box-shadow:none;}.card.ismvp{box-shadow:0 0 0 2px var(--gold) inset;}.objective{box-shadow:none;}}
 </style>
 </head>
 <body>
 <div class="wrap">
+  <nav class="nav" style="display:flex;gap:8px;margin-bottom:16px;font-family:Sora,sans-serif;font-size:.8rem"><a href="https://sanchezlopera96.github.io/itmentorsoft-wbs/" style="text-decoration:none;border:1px solid #d3d9e4;border-radius:9px;padding:7px 12px;background:#fff;color:#616a7d">◧ Diagrama WBS ↗</a><a class="cur" href="index.html" style="text-decoration:none;border:1px solid #4a41ab;border-radius:9px;padding:7px 12px;background:#4a41ab;color:#fff">▤ Story Map</a></nav>
   <p class="kicker">ITM · Esp. Ingeniería de Software · Gestión de Proyectos</p>
   <h1>Story Map — Tutor Inteligente ITM (ITMentorSoft)</h1>
   <p class="sub">Arriba el <b>objetivo</b>; la <b>columna vertebral</b> son las Épicas (actividad macro) y debajo el flujo narrativo de features; cada tarjeta es una <b>Historia de Usuario</b>; las <b>filas son las Releases</b>.</p>
